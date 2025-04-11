@@ -1,4 +1,4 @@
 """
-ServiceNow Ticketing System
-A system for generating logs, detecting anomalies, and creating ServiceNow tickets.
+Ticketing and Notifier System
+A system for generating logs, detecting anomalies, creating ServiceNow tickets, and sending Slack notifications.
 """ 

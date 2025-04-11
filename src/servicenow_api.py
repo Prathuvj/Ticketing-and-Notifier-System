@@ -7,6 +7,7 @@ import os
 import requests
 from typing import Dict, Any
 from dotenv import load_dotenv
+from slack_notifier import SlackNotifier
 
 class ServiceNowAPI:
     def __init__(self):
@@ -16,6 +17,7 @@ class ServiceNowAPI:
         self.password = os.getenv('SNOW_PASSWORD')
         # Remove any trailing slashes and construct the base URL
         self.base_url = f"{self.instance.rstrip('/')}/api/now"
+        self.slack_notifier = SlackNotifier()
         
     def create_incident(self, anomaly: Dict[str, Any]) -> Dict[str, Any]:
         """Create a new incident in ServiceNow."""
@@ -40,7 +42,13 @@ class ServiceNowAPI:
             json=data
         )
         
-        return response.json()
+        incident_data = response.json()
+        
+        # Send Slack notification
+        if response.status_code == 201:  # Created
+            self.slack_notifier.send_incident_alert(incident_data, self.instance)
+        
+        return incident_data
     
     def update_incident(self, incident_sys_id: str, update_data: Dict[str, Any]) -> Dict[str, Any]:
         """Update an existing incident in ServiceNow."""
